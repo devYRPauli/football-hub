@@ -11,15 +11,20 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/server"
+      "src": "/api/(.*)",
+      "dest": "/api/server"
     },
     {
-      "source": "/((?!api/|[^/\\.]+\\.[^/\\.]+).*)",
-      "destination": "/index.html"
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
-  ]
+  ],
+  "devCommand": "npm start --prefix frontend"
 }
 
