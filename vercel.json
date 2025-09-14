@@ -11,19 +11,9 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/server"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/server" },
+    { "source": "/(.*)", "destination": "/frontend/build/index.html" }
   ],
   "devCommand": "npm start --prefix frontend"
 }
