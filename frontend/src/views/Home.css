@@ -1,0 +1,180 @@
+/* --- Main Container --- */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+.football-icon {
+  font-size: 4rem;
+  animation: bounce 2s infinite ease-in-out;
+  margin-bottom: 1rem;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-30px);
+  }
+  60% {
+    transform: translateY(-15px);
+  }
+}
+
+.hero-section {
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  letter-spacing: -1px;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  color: var(--secondary-text);
+  line-height: 1.6;
+}
+
+.league-grid-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  width: 100%;
+  max-width: 900px;
+}
+
+.league-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  width: 100%;
+}
+
+.league-card {
+  background-color: var(--secondary-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  width: 150px;
+  height: 150px;
+  transition: all 0.2s ease-in-out; 
+}
+
+.league-card:hover {
+    transform: translateY(-5px);
+}
+
+.league-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  transition: filter 0.2s ease-in-out; 
+}
+
+.league-name-home {
+  font-weight: 600;
+  color: var(--primary-text);
+  transition: color 0.2s ease-in-out;
+}
+
+.league-card[data-league-code='PL']:hover { background-color: #6a2ee8; box-shadow: 0 10px 30px #6a2ee866; }
+.league-card[data-league-code='CL']:hover { background-color: #1e3a8a; box-shadow: 0 10px 30px #1e3a8a66; }
+.league-card[data-league-code='BL1']:hover { background-color: #e60014; box-shadow: 0 10px 30px #e6001466; }
+.league-card[data-league-code='SA']:hover { background-color: #0055a4; box-shadow: 0 10px 30px #0055a466; }
+.league-card[data-league-code='PD']:hover { background-color: #ff9800; box-shadow: 0 10px 30px #ff980066; }
+.league-card[data-league-code='FL1']:hover { background-color: #1d428a; box-shadow: 0 10px 30px #1d428a66; }
+.league-card[data-league-code='PPL']:hover { background-color: #00a859; box-shadow: 0 10px 30px #00a85966; }
+
+.league-card:hover .league-name-home { color: #fff; }
+.league-card:hover .league-logo { filter: brightness(0) invert(1); }
+
+.floating-theme-toggle {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 30px;
+  background-color: var(--tertiary-bg);
+  border-radius: 15px;
+  cursor: pointer;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  z-index: 1001;
+}
+
+.theme-toggle-indicator {
+  width: 24px;
+  height: 24px;
+  background-color: var(--secondary-text);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.floating-theme-toggle[data-theme='dark'] .theme-toggle-indicator {
+  transform: translateX(30px);
+  background-color: var(--accent-color);
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  .league-card {
+    width: 120px;
+    height: 120px;
+  }
+  .league-row {
+      gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+    .league-grid-container {
+        gap: 1rem;
+    }
+    .league-card {
+        width: 100px;
+        height: 100px;
+    }
+    .league-logo {
+        width: 50px;
+        height: 50px;
+    }
+    .league-name-home {
+        font-size: 0.8rem;
+    }
+    .floating-theme-toggle {
+        bottom: 1rem;
+        right: 1rem;
+    }
+}
+
