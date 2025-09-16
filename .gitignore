@@ -17,3 +17,6 @@ yarn-error.log*
 /frontend/.env
 
 .vercel
+/backend/node_modules
+backend/.env
+backend/package-lock.json

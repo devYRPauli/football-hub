@@ -7,8 +7,9 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
-// --- Security and Caching Setup ---
+// --- Security, Caching, and CORS Setup ---
 const apiCache = new NodeCache({ stdTTL: 300 });
 
 app.use(helmet());
@@ -19,10 +20,10 @@ const limiter = rateLimit({
 	legacyHeaders: false,
     message: 'Too many requests from this IP, please try again after 15 minutes',
 });
-app.use(limiter); // Apply rate limiter to all requests
+app.use('/api', limiter);
 
-
-app.use(cors());
+// Allow requests from our local frontend
+app.use(cors({ origin: 'http://localhost:3000' }));
 
 
 // --- Axios Instance with Timeout ---
@@ -116,6 +117,8 @@ app.get('/api/match/:matchId', cacheMiddleware, async (req, res) => {
     }
 });
 
+// --- Server Start ---
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
 
-// --- Export the app for Vercel ---
-module.exports = app;

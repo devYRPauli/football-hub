@@ -1,5 +1,5 @@
 // --- React and Router Imports ---
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -25,20 +25,19 @@ function LeagueView() {
     const { data, loading, error, isOnCooldown, cooldownTimer } = useLeagueData(leagueCode);
 
     // State for search and modal visibility
-    const [searchTerm, setSearchTerm] = React.useState('');
-    const [selectedTeam, setSelectedTeam] = React.useState(null);
-    const [selectedMatch, setSelectedMatch] = React.useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedTeam, setSelectedTeam] = useState(null);
+    const [selectedMatch, setSelectedMatch] = useState(null);
 
-    // Effect to handle the specific bug case
-    React.useEffect(() => {
+    // Effect to handle navigation bug when switching to CL from a scorers page
+    useEffect(() => {
         if (leagueCode === 'CL' && view === 'scorers') {
             navigate(`/league/CL/standings`, { replace: true });
         }
     }, [leagueCode, view, navigate]);
 
-
     // Memoized filtering for the standings table based on search term
-    const filteredStandings = React.useMemo(() => {
+    const filteredStandings = useMemo(() => {
         if (!searchTerm) return data.standings;
         const lowercasedFilter = searchTerm.toLowerCase();
 
@@ -66,24 +65,28 @@ function LeagueView() {
               animate="visible"
             >
               <h3 className="group-header">{(group.group || 'Group Stage').replace(/_/g, ' ')}</h3>
-              <table className="standings-table">
-                <thead><tr><th>Pos</th><th colSpan="2">Club</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead>
-                <tbody>{group.table.map((teamRow) => (<motion.tr variants={listItemVariants} key={teamRow.team.id}><td>{teamRow.position}</td><td><img src={teamRow.team.crest} alt={`${teamRow.team.name} crest`} className="team-crest" /></td><td className="team-name" onClick={() => setSelectedTeam(teamRow.team)}>{teamRow.team.name}</td><td>{teamRow.playedGames}</td><td>{teamRow.won}</td><td>{teamRow.draw}</td><td>{teamRow.lost}</td><td><strong>{teamRow.points}</strong></td></motion.tr>))}</tbody>
-              </table>
+              <div className="standings-table-wrapper">
+                <table className="standings-table">
+                  <thead><tr><th>Pos</th><th colSpan="2">Club</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead>
+                  <tbody>{group.table.map((teamRow) => (<motion.tr variants={listItemVariants} key={teamRow.team.id}><td>{teamRow.position}</td><td><img src={teamRow.team.crest} alt={`${teamRow.team.name} crest`} className="team-crest" /></td><td className="team-name" onClick={() => setSelectedTeam(teamRow.team)}>{teamRow.team.name}</td><td>{teamRow.playedGames}</td><td>{teamRow.won}</td><td>{teamRow.draw}</td><td>{teamRow.lost}</td><td><strong>{teamRow.points}</strong></td></motion.tr>))}</tbody>
+                </table>
+              </div>
             </motion.div>
           ));
         }
         // Standard rendering for domestic leagues
         return (
-            <motion.table 
-              className="standings-table"
-              variants={listContainerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <thead><tr><th>Pos</th><th colSpan="2">Club</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead>
-              <tbody>{(dataToRender[0]?.table || []).map((teamRow) => (<motion.tr variants={listItemVariants} key={teamRow.team.id}><td>{teamRow.position}</td><td><img src={teamRow.team.crest} alt={`${teamRow.team.name} crest`} className="team-crest" /></td><td className="team-name" onClick={() => setSelectedTeam(teamRow.team)}>{teamRow.team.name}</td><td>{teamRow.playedGames}</td><td>{teamRow.won}</td><td>{teamRow.draw}</td><td>{teamRow.lost}</td><td><strong>{teamRow.points}</strong></td></motion.tr>))}</tbody>
-            </motion.table>
+            <div className="standings-table-wrapper">
+                <motion.table 
+                  className="standings-table"
+                  variants={listContainerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <thead><tr><th>Pos</th><th colSpan="2">Club</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead>
+                  <tbody>{(dataToRender[0]?.table || []).map((teamRow) => (<motion.tr variants={listItemVariants} key={teamRow.team.id}><td>{teamRow.position}</td><td><img src={teamRow.team.crest} alt={`${teamRow.team.name} crest`} className="team-crest" /></td><td className="team-name" onClick={() => setSelectedTeam(teamRow.team)}>{teamRow.team.name}</td><td>{teamRow.playedGames}</td><td>{teamRow.won}</td><td>{teamRow.draw}</td><td>{teamRow.lost}</td><td><strong>{teamRow.points}</strong></td></motion.tr>))}</tbody>
+                </motion.table>
+            </div>
         );
     };
 
@@ -94,11 +97,40 @@ function LeagueView() {
           initial="hidden"
           animate="visible"
         >
-          {data.matches.map((match) => (<motion.div variants={listItemVariants} key={match.id} className="match-card" onClick={() => setSelectedMatch(match)}><div className="match-card-header"><span className="match-status">{formatMatchStatus(match.status)}</span></div><div className="match-teams"><div className="team-layout"><img src={match.homeTeam.crest} alt={match.homeTeam.name} className="team-crest-small" /><span className="team-name-fixture">{match.homeTeam.name}</span></div><span className="score-fixture">{match.score.fullTime.home ?? '-'} : {match.score.fullTime.away ?? '-'}</span><div className="team-layout"><img src={match.awayTeam.crest} alt={match.awayTeam.name} className="team-crest-small" /><span className="team-name-fixture">{match.awayTeam.name}</span></div></div><div className="match-card-footer">{new Date(match.utcDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</div></motion.div>))}
+          {data.matches.map((match) => (
+            <motion.div 
+              variants={listItemVariants} 
+              key={match.id} 
+              className="match-card" 
+              onClick={() => setSelectedMatch(match)}
+            >
+              <div className="match-card-content">
+                <div className="match-teams">
+                  <div className="team-layout">
+                    <img src={match.homeTeam.crest} alt={match.homeTeam.name} className="team-crest-small" />
+                    <span className="team-name-fixture">{match.homeTeam.name}</span>
+                  </div>
+                  <span className="score-fixture">
+                    {match.score.fullTime.home ?? '-'} : {match.score.fullTime.away ?? '-'}
+                  </span>
+                  <div className="team-layout away">
+                    <span className="team-name-fixture">{match.awayTeam.name}</span>
+                    <img src={match.awayTeam.crest} alt={match.awayTeam.name} className="team-crest-small" />
+                  </div>
+                </div>
+              </div>
+              <div className="match-card-footer">
+                {/* Correctly display the date and the status badge */}
+                <span>{new Date(match.utcDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                <span className="match-status" data-status={match.status}>{formatMatchStatus(match.status)}</span>
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
     );
     
     const renderScorers = () => (
+      <div className="standings-table-wrapper">
         <motion.table 
           className="standings-table"
           variants={listContainerVariants}
@@ -108,6 +140,7 @@ function LeagueView() {
             <thead><tr><th>Player</th><th>Team</th><th>Goals</th></tr></thead>
             <tbody>{data.scorers.map(scorer => (<motion.tr variants={listItemVariants} key={scorer.player.id}><td>{scorer.player.name}</td><td>{scorer.team.name}</td><td><strong>{scorer.goals}</strong></td></motion.tr>))}</tbody>
         </motion.table>
+      </div>
     );
 
     // Main render function to decide what to show: loading, error, or content

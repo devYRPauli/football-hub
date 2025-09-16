@@ -4,6 +4,9 @@ import { motion } from 'framer-motion';
 import { formatMatchDate, formatMatchStatus } from '../../utils/formatters';
 import './Modals.css';
 
+// Use the environment variable for the base API URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 function MatchModal({ match: selectedMatch, onClose }) {
   const [matchDetails, setMatchDetails] = useState(null);
   const [matchLoading, setMatchLoading] = useState(true);
@@ -14,8 +17,8 @@ function MatchModal({ match: selectedMatch, onClose }) {
     const fetchMatchDetails = async () => {
       setMatchLoading(true);
       try {
-        // Use a relative path for the API call
-        const res = await axios.get(`/api/match/${selectedMatch.id}`);
+        // Use the new API_BASE_URL variable in the request
+        const res = await axios.get(`${API_BASE_URL}/api/match/${selectedMatch.id}`);
         setMatchDetails(res.data);
       } catch (err) {
         console.error("Failed to fetch match details", err);
@@ -42,6 +45,7 @@ function MatchModal({ match: selectedMatch, onClose }) {
       return <p className="error-message">Could not load match details.</p>;
     }
 
+    // Correctly access the detailed match data
     const matchData = matchDetails.match || {};
     const h2hData = matchDetails.head2head;
 
@@ -62,6 +66,7 @@ function MatchModal({ match: selectedMatch, onClose }) {
         </div>
         <div className="match-modal-details">
           <p>{formatMatchDate(selectedMatch.utcDate)}</p>
+          {/* Correctly display venue and status from the fetched details */}
           <p><strong>Venue:</strong> {matchData.venue || 'Not available'}</p>
           <p><strong>Status:</strong> {formatMatchStatus(matchData.status)}</p>
         </div>

@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { LEAGUE_NAMES } from '../constants';
 
-// Custom hook to manage all data fetching, caching, and cooldown logic for a league
+// Use the environment variable for the base API URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 function useLeagueData(leagueCode) {
   const [data, setData] = useState({ standings: [], matches: [], scorers: [] });
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,6 @@ function useLeagueData(leagueCode) {
   const [cooldownTimer, setCooldownTimer] = useState(0);
 
   const fetchData = useCallback(async () => {
-    // Return early if on cooldown or if data is already cached
     if (isOnCooldown) return;
     if (cachedData[leagueCode]) {
       setData(cachedData[leagueCode]);
@@ -20,13 +21,11 @@ function useLeagueData(leagueCode) {
       setError(null);
       return;
     }
-
     setLoading(true);
     setError(null);
-
     try {
-      // Use a relative path to fetch all league data from the serverless function
-      const response = await axios.get(`/api/league-data/${leagueCode}`);
+      // Use the new API_BASE_URL variable in the request
+      const response = await axios.get(`${API_BASE_URL}/api/league-data/${leagueCode}`);
       const newData = response.data;
       setData(newData);
       setCachedData(prev => ({ ...prev, [leagueCode]: newData }));
@@ -42,17 +41,15 @@ function useLeagueData(leagueCode) {
     }
   }, [leagueCode, cachedData, isOnCooldown]);
 
-  // Effect to trigger a fetch when the league code changes
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Effect to manage the API cooldown timer
   useEffect(() => {
     if (!isOnCooldown) return;
     if (cooldownTimer <= 0) {
       setIsOnCooldown(false);
-      fetchData(); // Refetch data once cooldown is over
+      fetchData();
       return;
     }
     const timerId = setInterval(() => setCooldownTimer(t => t - 1), 1000);

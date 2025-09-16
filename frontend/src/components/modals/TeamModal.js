@@ -3,6 +3,9 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import './Modals.css';
 
+// Use the environment variable for the base API URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 function TeamModal({ team: selectedTeam, onClose }) {
   const [teamDetails, setTeamDetails] = useState(null);
   const [teamLoading, setTeamLoading] = useState(true);
@@ -13,8 +16,8 @@ function TeamModal({ team: selectedTeam, onClose }) {
     const fetchTeamDetails = async () => {
       setTeamLoading(true);
       try {
-        // Use a relative path for the API call
-        const res = await axios.get(`/api/team/${selectedTeam.id}`);
+        // Use the new API_BASE_URL variable in the request
+        const res = await axios.get(`${API_BASE_URL}/api/team/${selectedTeam.id}`);
         setTeamDetails(res.data);
       } catch (err) {
         console.error("Failed to fetch team details", err);
@@ -55,7 +58,9 @@ function TeamModal({ team: selectedTeam, onClose }) {
                 {teamDetails.website && <div className="detail-item website"><a href={teamDetails.website} target="_blank" rel="noopener noreferrer">Official Website</a></div>}
             </div>
             <div className="modal-card">
+                {/* Safely access coach name */}
                 {teamDetails.coach?.name && (<div className="detail-item"><strong>Coach</strong> {teamDetails.coach.name}</div>)}
+                {/* Safely access running competitions */}
                 {teamDetails.runningCompetitions?.length > 0 && (
                     <div className="detail-item">
                       <strong>Active Competitions</strong>

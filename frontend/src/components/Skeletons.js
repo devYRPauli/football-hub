@@ -14,12 +14,14 @@ const SkeletonRow = () => (
 );
 
 export const StandingsSkeleton = () => (
-    <table className="standings-table">
-        <thead>
-            <tr><th>Pos</th><th colSpan="2">Club</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr>
-        </thead>
-        <tbody>{[...Array(10)].map((_, i) => <SkeletonRow key={i} />)}</tbody>
-    </table>
+    <div className="standings-table-wrapper">
+        <table className="standings-table">
+            <thead>
+                <tr><th>Pos</th><th colSpan="2">Club</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr>
+            </thead>
+            <tbody>{[...Array(10)].map((_, i) => <SkeletonRow key={i} />)}</tbody>
+        </table>
+    </div>
 );
 
 export const FixturesSkeleton = () => (
@@ -34,18 +36,21 @@ export const FixturesSkeleton = () => (
 );
 
 export const ScorersSkeleton = () => (
-    <table className="standings-table">
-        <thead>
-            <tr><th>Player</th><th>Team</th><th>Goals</th></tr>
-        </thead>
-        <tbody>
-            {[...Array(10)].map((_, i) => (
-                <tr key={i}>
-                    <td><div className="skeleton skeleton-text"></div></td>
-                    <td><div className="skeleton skeleton-text"></div></td>
-                    <td><div className="skeleton skeleton-text" style={{ width: '40px' }}></div></td>
-                </tr>
-            ))}
-        </tbody>
-    </table>
+    <div className="standings-table-wrapper">
+        <table className="standings-table">
+            <thead>
+                <tr><th>Player</th><th>Team</th><th>Goals</th></tr>
+            </thead>
+            <tbody>
+                {[...Array(10)].map((_, i) => (
+                    <tr key={i}>
+                        <td><div className="skeleton skeleton-text"></div></td>
+                        <td><div className="skeleton skeleton-text"></div></td>
+                        <td><div className="skeleton skeleton-text" style={{ width: '40px' }}></div></td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
 );
+
