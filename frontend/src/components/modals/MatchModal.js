@@ -84,7 +84,7 @@ function MatchModal({ match: selectedMatch, onClose }) {
               </div>
               <div className="h2h-stat">
                 <p>{selectedMatch.awayTeam.name} Wins</p>
-                <p className="stat-number">{h2hData.homeTeam.losses}</p>
+                <p className="stat-number">{h2hData.awayTeam?.wins || h2hData.homeTeam.losses}</p>
               </div>
             </div>
           </div>

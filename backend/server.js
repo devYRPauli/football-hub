@@ -22,8 +22,8 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Allow requests from our local frontend
-app.use(cors({ origin: 'http://localhost:3000' }));
+// Allow requests from frontend (configurable via environment variable)
+app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
 
 
 // --- Axios Instance with Timeout ---
@@ -117,8 +117,16 @@ app.get('/api/match/:matchId', cacheMiddleware, async (req, res) => {
     }
 });
 
+// --- Environment Variable Validation ---
+if (!process.env.FOOTBALL_API_KEY) {
+  console.error('ERROR: FOOTBALL_API_KEY environment variable is required');
+  console.error('Please set FOOTBALL_API_KEY in your .env file');
+  process.exit(1);
+}
+
 // --- Server Start ---
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`CORS origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
 });
 

@@ -73,7 +73,13 @@ function TeamModal({ team: selectedTeam, onClose }) {
         </div>
         
         <h4 className="squad-header">Squad</h4>
-        <ul className="squad-list">{teamDetails.squad.map(p => <li key={p.id} className="squad-member"><span className="player-name">{p.name}</span><span className="player-position">{p.position}</span></li>)}</ul>
+        <ul className="squad-list">
+          {teamDetails.squad && teamDetails.squad.length > 0 ? (
+            teamDetails.squad.map(p => <li key={p.id} className="squad-member"><span className="player-name">{p.name}</span><span className="player-position">{p.position}</span></li>)
+          ) : (
+            <li className="no-data">No squad information available</li>
+          )}
+        </ul>
       </>
     );
   };

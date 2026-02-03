@@ -38,12 +38,13 @@ function LeagueView() {
 
     // Memoized filtering for the standings table based on search term
     const filteredStandings = useMemo(() => {
+        if (!data.standings || data.standings.length === 0) return [];
         if (!searchTerm) return data.standings;
         const lowercasedFilter = searchTerm.toLowerCase();
 
         if (leagueCode === 'CL') {
           return data.standings.map(group => ({
-            ...group, table: group.table.filter(teamRow => teamRow.team.name.toLowerCase().includes(lowercasedFilter)),
+            ...group, table: (group.table || []).filter(teamRow => teamRow.team.name.toLowerCase().includes(lowercasedFilter)),
           })).filter(group => group.table.length > 0);
         } else {
           return [{ ...data.standings[0], table: (data.standings[0]?.table || []).filter(teamRow => teamRow.team.name.toLowerCase().includes(lowercasedFilter)) }];
@@ -54,6 +55,9 @@ function LeagueView() {
 
     const renderStandings = () => {
         const dataToRender = filteredStandings;
+        if (!dataToRender || dataToRender.length === 0) {
+            return <p className="no-data-message">No standings data available</p>;
+        }
         // Special rendering for Champions League group stage
         if (leagueCode === 'CL') {
           return dataToRender.map((group, index) => (
@@ -90,7 +94,11 @@ function LeagueView() {
         );
     };
 
-    const renderFixtures = () => (
+    const renderFixtures = () => {
+        if (!data.matches || data.matches.length === 0) {
+            return <p className="no-data-message">No fixtures available</p>;
+        }
+        return (
         <motion.div 
           className="fixtures-list"
           variants={listContainerVariants}
@@ -127,9 +135,14 @@ function LeagueView() {
             </motion.div>
           ))}
         </motion.div>
-    );
+        );
+    };
     
-    const renderScorers = () => (
+    const renderScorers = () => {
+        if (!data.scorers || data.scorers.length === 0) {
+            return <p className="no-data-message">No scorers data available</p>;
+        }
+        return (
       <div className="standings-table-wrapper">
         <motion.table 
           className="standings-table"
@@ -141,7 +154,8 @@ function LeagueView() {
             <tbody>{data.scorers.map(scorer => (<motion.tr variants={listItemVariants} key={scorer.player.id}><td>{scorer.player.name}</td><td>{scorer.team.name}</td><td><strong>{scorer.goals}</strong></td></motion.tr>))}</tbody>
         </motion.table>
       </div>
-    );
+        );
+    };
 
     // Main render function to decide what to show: loading, error, or content
     const renderContent = () => {
