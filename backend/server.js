@@ -9,6 +9,10 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy - required for Render, Heroku, and other reverse proxies
+// This allows express-rate-limit to correctly identify client IPs
+app.set('trust proxy', 1);
+
 // --- Valid League Codes Whitelist ---
 const VALID_LEAGUE_CODES = ['PL', 'PD', 'BL1', 'SA', 'FL1', 'CL', 'PPL'];
 
