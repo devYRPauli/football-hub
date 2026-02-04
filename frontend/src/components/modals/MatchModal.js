@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { formatMatchDate, formatMatchStatus, getStatusIcon } from '../../utils/formatters';
+import { formatMatchDate, formatMatchStatus } from '../../utils/formatters';
 import './Modals.css';
 
 // Use the environment variable for the base API URL with fallback

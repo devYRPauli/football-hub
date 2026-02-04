@@ -54,7 +54,7 @@ function useLeagueData(leagueCode) {
 
   useEffect(() => {
     fetchData();
-  }, [leagueCode]);
+  }, [leagueCode, fetchData]);
 
   useEffect(() => {
     if (!isOnCooldown) return;
