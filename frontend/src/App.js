@@ -10,13 +10,25 @@ import './App.css';
 // --- Main App Component ---
 function App() {
   // State for managing the application's theme (light/dark)
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  // Safely access localStorage with fallback for private browsing mode
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('theme') || 'dark';
+    } catch (error) {
+      console.warn('localStorage not available, using default theme:', error);
+      return 'dark';
+    }
+  });
   const location = useLocation();
 
   // Effect to apply the current theme to the body and save it to localStorage
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (error) {
+      console.warn('Failed to save theme to localStorage:', error);
+    }
   }, [theme]);
 
   // Effect to apply special styling attributes based on the current route

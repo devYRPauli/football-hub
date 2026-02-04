@@ -9,6 +9,9 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// --- Valid League Codes Whitelist ---
+const VALID_LEAGUE_CODES = ['PL', 'PD', 'BL1', 'SA', 'FL1', 'CL', 'PPL'];
+
 // --- Security, Caching, and CORS Setup ---
 const apiCache = new NodeCache({ stdTTL: 300 });
 
@@ -59,6 +62,14 @@ const cacheMiddleware = (req, res, next) => {
 // --- API Routes ---
 app.get('/api/league-data/:leagueCode', cacheMiddleware, async (req, res) => {
     const { leagueCode } = req.params;
+    
+    // Validate leagueCode against whitelist
+    if (!VALID_LEAGUE_CODES.includes(leagueCode)) {
+        return res.status(400).json({ 
+            message: `Invalid league code. Must be one of: ${VALID_LEAGUE_CODES.join(', ')}` 
+        });
+    }
+    
     try {
         const endpoints = [
             `/competitions/${leagueCode}/standings`,
@@ -98,8 +109,17 @@ app.get('/api/league-data/:leagueCode', cacheMiddleware, async (req, res) => {
 });
 
 app.get('/api/team/:teamId', cacheMiddleware, async (req, res) => {
+    const { teamId } = req.params;
+    
+    // Validate teamId is a positive integer
+    if (!teamId || !/^\d+$/.test(teamId) || parseInt(teamId) <= 0) {
+        return res.status(400).json({ 
+            message: 'Invalid team ID. Must be a positive integer.' 
+        });
+    }
+    
     try {
-        const response = await api.get(`/teams/${req.params.teamId}`);
+        const response = await api.get(`/teams/${teamId}`);
         apiCache.set(req.originalUrl, response.data);
         res.json(response.data);
     } catch (error) {
@@ -108,8 +128,17 @@ app.get('/api/team/:teamId', cacheMiddleware, async (req, res) => {
 });
 
 app.get('/api/match/:matchId', cacheMiddleware, async (req, res) => {
+    const { matchId } = req.params;
+    
+    // Validate matchId is a positive integer
+    if (!matchId || !/^\d+$/.test(matchId) || parseInt(matchId) <= 0) {
+        return res.status(400).json({ 
+            message: 'Invalid match ID. Must be a positive integer.' 
+        });
+    }
+    
     try {
-        const response = await api.get(`/matches/${req.params.matchId}`);
+        const response = await api.get(`/matches/${matchId}`);
         apiCache.set(req.originalUrl, response.data);
         res.json(response.data);
     } catch (error) {

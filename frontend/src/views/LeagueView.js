@@ -1,5 +1,5 @@
 // --- React and Router Imports ---
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,6 +15,9 @@ import { StandingsSkeleton, FixturesSkeleton, ScorersSkeleton } from '../compone
 import TeamModal from '../components/modals/TeamModal';
 import MatchModal from '../components/modals/MatchModal';
 
+// Placeholder image for missing team crests
+const PLACEHOLDER_CREST = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"%3E%3Ccircle cx="12" cy="12" r="10" stroke-width="2"/%3E%3Cpath d="M12 6v6l4 2" stroke-width="2"/%3E%3C/svg%3E';
+
 // --- Main View Component ---
 function LeagueView() {
     // Hooks for routing and navigation
@@ -24,10 +27,18 @@ function LeagueView() {
     // Custom hook to manage all data fetching, caching, and cooldown logic
     const { data, loading, error, isOnCooldown, cooldownTimer } = useLeagueData(leagueCode);
 
-    // State for search and modal visibility
-    const [searchTerm, setSearchTerm] = useState('');
+    // State for modal visibility and fixtures tab
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [selectedMatch, setSelectedMatch] = useState(null);
+    const [fixturesTab, setFixturesTab] = useState('upcoming');
+
+    // Keyboard handler for table rows
+    const handleTeamKeyDown = (event, team) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            setSelectedTeam(team);
+        }
+    };
 
     // Effect to handle navigation bug when switching to CL from a scorers page
     useEffect(() => {
@@ -36,31 +47,16 @@ function LeagueView() {
         }
     }, [leagueCode, view, navigate]);
 
-    // Memoized filtering for the standings table based on search term
-    const filteredStandings = useMemo(() => {
-        if (!data.standings || data.standings.length === 0) return [];
-        if (!searchTerm) return data.standings;
-        const lowercasedFilter = searchTerm.toLowerCase();
-
-        if (leagueCode === 'CL') {
-          return data.standings.map(group => ({
-            ...group, table: (group.table || []).filter(teamRow => teamRow.team.name.toLowerCase().includes(lowercasedFilter)),
-          })).filter(group => group.table.length > 0);
-        } else {
-          return [{ ...data.standings[0], table: (data.standings[0]?.table || []).filter(teamRow => teamRow.team.name.toLowerCase().includes(lowercasedFilter)) }];
-        }
-    }, [data.standings, searchTerm, leagueCode]);
 
     // --- Render Functions for each view ---
 
     const renderStandings = () => {
-        const dataToRender = filteredStandings;
-        if (!dataToRender || dataToRender.length === 0) {
+        if (!data.standings || data.standings.length === 0) {
             return <p className="no-data-message">No standings data available</p>;
         }
         // Special rendering for Champions League group stage
         if (leagueCode === 'CL') {
-          return dataToRender.map((group, index) => (
+          return data.standings.map((group, index) => (
             <motion.div 
               key={group.group || `group-${index}`} 
               className="group-container"
@@ -72,7 +68,7 @@ function LeagueView() {
               <div className="standings-table-wrapper">
                 <table className="standings-table">
                   <thead><tr><th>Pos</th><th colSpan="2">Club</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead>
-                  <tbody>{group.table.map((teamRow) => (<motion.tr variants={listItemVariants} key={teamRow.team.id}><td>{teamRow.position}</td><td><img src={teamRow.team.crest} alt={`${teamRow.team.name} crest`} className="team-crest" /></td><td className="team-name" onClick={() => setSelectedTeam(teamRow.team)}>{teamRow.team.name}</td><td>{teamRow.playedGames}</td><td>{teamRow.won}</td><td>{teamRow.draw}</td><td>{teamRow.lost}</td><td><strong>{teamRow.points}</strong></td></motion.tr>))}</tbody>
+                  <tbody>{group.table.map((teamRow) => (<motion.tr variants={listItemVariants} key={teamRow.team.id}><td>{teamRow.position}</td><td><img src={teamRow.team.crest || PLACEHOLDER_CREST} alt={`${teamRow.team.name} crest`} className="team-crest" /></td><td className="team-name" onClick={() => setSelectedTeam(teamRow.team)} onKeyDown={(e) => handleTeamKeyDown(e, teamRow.team)} tabIndex={0} role="button" aria-label={`View ${teamRow.team.name} details`}>{teamRow.team.name}</td><td>{teamRow.playedGames}</td><td>{teamRow.won}</td><td>{teamRow.draw}</td><td>{teamRow.lost}</td><td><strong>{teamRow.points}</strong></td></motion.tr>))}</tbody>
                 </table>
               </div>
             </motion.div>
@@ -88,7 +84,7 @@ function LeagueView() {
                   animate="visible"
                 >
                   <thead><tr><th>Pos</th><th colSpan="2">Club</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>Pts</th></tr></thead>
-                  <tbody>{(dataToRender[0]?.table || []).map((teamRow) => (<motion.tr variants={listItemVariants} key={teamRow.team.id}><td>{teamRow.position}</td><td><img src={teamRow.team.crest} alt={`${teamRow.team.name} crest`} className="team-crest" /></td><td className="team-name" onClick={() => setSelectedTeam(teamRow.team)}>{teamRow.team.name}</td><td>{teamRow.playedGames}</td><td>{teamRow.won}</td><td>{teamRow.draw}</td><td>{teamRow.lost}</td><td><strong>{teamRow.points}</strong></td></motion.tr>))}</tbody>
+                  <tbody>{(data.standings[0]?.table || []).map((teamRow) => (<motion.tr variants={listItemVariants} key={teamRow.team.id}><td>{teamRow.position}</td><td><img src={teamRow.team.crest || PLACEHOLDER_CREST} alt={`${teamRow.team.name} crest`} className="team-crest" /></td><td className="team-name" onClick={() => setSelectedTeam(teamRow.team)} onKeyDown={(e) => handleTeamKeyDown(e, teamRow.team)} tabIndex={0} role="button" aria-label={`View ${teamRow.team.name} details`}>{teamRow.team.name}</td><td>{teamRow.playedGames}</td><td>{teamRow.won}</td><td>{teamRow.draw}</td><td>{teamRow.lost}</td><td><strong>{teamRow.points}</strong></td></motion.tr>))}</tbody>
                 </motion.table>
             </div>
         );
@@ -98,43 +94,102 @@ function LeagueView() {
         if (!data.matches || data.matches.length === 0) {
             return <p className="no-data-message">No fixtures available</p>;
         }
+
+        // Split matches into upcoming and past
+        const now = new Date();
+        const upcomingMatches = data.matches
+            .filter(m => new Date(m.utcDate) > now)
+            .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+        
+        const pastMatches = data.matches
+            .filter(m => new Date(m.utcDate) <= now)
+            .sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate));
+
+        const matchesToDisplay = fixturesTab === 'upcoming' ? upcomingMatches : pastMatches;
+
         return (
-        <motion.div 
-          className="fixtures-list"
-          variants={listContainerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {data.matches.map((match) => (
-            <motion.div 
-              variants={listItemVariants} 
-              key={match.id} 
-              className="match-card" 
-              onClick={() => setSelectedMatch(match)}
-            >
-              <div className="match-card-content">
-                <div className="match-teams">
-                  <div className="team-layout">
-                    <img src={match.homeTeam.crest} alt={match.homeTeam.name} className="team-crest-small" />
-                    <span className="team-name-fixture">{match.homeTeam.name}</span>
-                  </div>
-                  <span className="score-fixture">
-                    {match.score.fullTime.home ?? '-'} : {match.score.fullTime.away ?? '-'}
-                  </span>
-                  <div className="team-layout away">
-                    <span className="team-name-fixture">{match.awayTeam.name}</span>
-                    <img src={match.awayTeam.crest} alt={match.awayTeam.name} className="team-crest-small" />
-                  </div>
+            <>
+                {/* Fixtures Sub-tabs */}
+                <div className="fixtures-tabs" role="tablist">
+                    <button 
+                        className={fixturesTab === 'upcoming' ? 'active' : ''} 
+                        onClick={() => setFixturesTab('upcoming')}
+                        role="tab"
+                        aria-selected={fixturesTab === 'upcoming'}
+                        aria-label={`View upcoming matches (${upcomingMatches.length} matches)`}
+                    >
+                        Upcoming ({upcomingMatches.length})
+                    </button>
+                    <button 
+                        className={fixturesTab === 'results' ? 'active' : ''} 
+                        onClick={() => setFixturesTab('results')}
+                        role="tab"
+                        aria-selected={fixturesTab === 'results'}
+                        aria-label={`View past results (${pastMatches.length} matches)`}
+                    >
+                        Results ({pastMatches.length})
+                    </button>
                 </div>
-              </div>
-              <div className="match-card-footer">
-                {/* Correctly display the date and the status badge */}
-                <span>{new Date(match.utcDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-                <span className="match-status" data-status={match.status}>{formatMatchStatus(match.status)}</span>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+
+                {/* Display matches based on active tab */}
+                {matchesToDisplay.length === 0 ? (
+                    <p className="no-data-message">
+                        No {fixturesTab === 'upcoming' ? 'upcoming' : 'past'} matches available
+                    </p>
+                ) : (
+                    <AnimatePresence mode="wait">
+                        <motion.div 
+                            key={fixturesTab}
+                            className="fixtures-list"
+                            variants={listContainerVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                        >
+                            {matchesToDisplay.map((match) => (
+                                <motion.div 
+                                    variants={listItemVariants} 
+                                    key={match.id} 
+                                    className="match-card" 
+                                    onClick={() => setSelectedMatch(match)}
+                                >
+                                    <div className="match-card-content">
+                                        <div className="match-teams">
+                                            <div className="team-layout">
+                                                <img src={match.homeTeam.crest || PLACEHOLDER_CREST} alt={match.homeTeam.name} className="team-crest-small" />
+                                                <span className="team-name-fixture">{match.homeTeam.name}</span>
+                                            </div>
+                                            <span className="score-fixture">
+                                                {match.score.fullTime.home ?? '-'} : {match.score.fullTime.away ?? '-'}
+                                            </span>
+                                            <div className="team-layout away">
+                                                <span className="team-name-fixture">{match.awayTeam.name}</span>
+                                                <img src={match.awayTeam.crest || PLACEHOLDER_CREST} alt={match.awayTeam.name} className="team-crest-small" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="match-card-footer">
+                                        <span className="match-date">
+                                            {new Date(match.utcDate).toLocaleDateString(undefined, { 
+                                                weekday: 'short', 
+                                                month: 'short', 
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </span>
+                                        {match.status && (
+                                            <span className="match-status" data-status={match.status}>
+                                                {formatMatchStatus(match.status)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </AnimatePresence>
+                )}
+            </>
         );
     };
     
@@ -191,20 +246,13 @@ function LeagueView() {
 
     return (
         <>
+            {/* --- Floating Home Button --- */}
+            <button className="floating-home-button" onClick={() => navigate('/')} aria-label="Go to home">
+                Home
+            </button>
+
             {/* --- Top Control Panel --- */}
             <div className="controls-wrapper">
-                <nav className="league-selector">
-                    {Object.keys(LEAGUE_NAMES).map((code) => (
-                        <button key={code} className={leagueCode === code ? 'active' : ''} onClick={() => navigate(`/league/${code}/${view}`)} disabled={isOnCooldown}>{LEAGUE_NAMES[code]}</button>
-                    ))}
-                </nav>
-
-                {view === 'standings' && (
-                    <div className="search-container">
-                        <input type="text" placeholder="Search for a team..." className="search-bar" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                    </div>
-                )}
-                
                 <div className="view-selector">
                     <button className={view === 'standings' ? 'active' : ''} onClick={() => navigate(`/league/${leagueCode}/standings`)}>Standings</button>
                     <button className={view === 'fixtures' ? 'active' : ''} onClick={() => navigate(`/league/${leagueCode}/fixtures`)}>Fixtures</button>
@@ -215,9 +263,11 @@ function LeagueView() {
                 </div>
             </div>
 
+            {/* --- Page Title --- */}
+            <h2 className="page-title">{LEAGUE_NAMES[leagueCode]} - {view.charAt(0).toUpperCase() + view.slice(1)}</h2>
+
             {/* --- Main Data Display Area --- */}
             <main className="App-content">
-                <h2>{LEAGUE_NAMES[leagueCode]} - {view.charAt(0).toUpperCase() + view.slice(1)}</h2>
                 {renderContent()}
             </main>
 

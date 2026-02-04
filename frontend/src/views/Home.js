@@ -5,13 +5,13 @@ import { LEAGUE_NAMES } from '../constants';
 import { containerVariants, itemVariants } from '../animations/variants';
 import './Home.css';
 
-import clLogo from '../assets/cl.png';
-import plLogo from '../assets/pl.png';
-import bl1Logo from '../assets/bl1.png';
-import saLogo from '../assets/sa.png';
-import pdLogo from '../assets/pd.png';
-import fl1Logo from '../assets/fl1.png';
-import pplLogo from '../assets/ppl.png';
+import clLogo from '../assets/cl.svg';
+import plLogo from '../assets/pl.svg';
+import bl1Logo from '../assets/bl1.svg';
+import saLogo from '../assets/sa.svg';
+import pdLogo from '../assets/pd.svg';
+import fl1Logo from '../assets/fl1.svg';
+import pplLogo from '../assets/ppl.svg';
 
 const leagueLogos = {
   CL: clLogo, PL: plLogo, BL1: bl1Logo, SA: saLogo,
@@ -28,6 +28,13 @@ function Home({ theme, toggleTheme }) {
     navigate(`/league/${leagueCode}/standings`);
   };
 
+  const handleKeyDown = (event, leagueCode) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleLeagueSelect(leagueCode);
+    }
+  };
+
   const renderLeagueRow = (leagueCodes) => (
     <motion.div className="league-row" variants={containerVariants}>
       {leagueCodes.map(code => (
@@ -35,13 +42,17 @@ function Home({ theme, toggleTheme }) {
           key={code}
           className="league-card"
           onClick={() => handleLeagueSelect(code)}
+          onKeyDown={(e) => handleKeyDown(e, code)}
+          role="button"
+          tabIndex={0}
+          aria-label={`View ${LEAGUE_NAMES[code]} standings and fixtures`}
           variants={itemVariants}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           data-league-code={code}
+          data-league-name={LEAGUE_NAMES[code]}
         >
           <img src={leagueLogos[code]} alt={`${LEAGUE_NAMES[code]} logo`} className="league-logo" />
-          <span className="league-name-home">{LEAGUE_NAMES[code]}</span>
         </motion.div>
       ))}
     </motion.div>
@@ -49,16 +60,14 @@ function Home({ theme, toggleTheme }) {
 
   return (
     <div className="home-container">
-      <div className="football-icon">⚽</div>
-
       <motion.div 
         className="hero-section"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
       >
-        <h1 className="hero-title">Welcome to Football Hub</h1>
-        <p className="hero-subtitle">Your one-stop destination for live scores, standings, and fixtures from the world's top football leagues.</p>
+        <h1 className="hero-title">Football Hub</h1>
+        <p className="hero-subtitle">Your premium destination for live scores, standings, and fixtures from the world's top football leagues.</p>
       </motion.div>
 
       <motion.div 

@@ -1,50 +1,189 @@
 /* --- CSS Variables for Theming --- */
 :root {
-  --font-family: 'Inter', sans-serif;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 }
 
-/* Dark theme color palette */
+/* Dark theme color palette - Enhanced with glassmorphism */
 [data-theme='dark'] {
-  --primary-bg: #1a1a1a;
-  --secondary-bg: #2a2a2a;
-  --tertiary-bg: #3a3a3a;
+  --primary-bg: #0a0a0a;
+  --secondary-bg: rgba(26, 26, 26, 0.7);
+  --tertiary-bg: rgba(42, 42, 42, 0.5);
   --primary-text: #ffffff;
-  --secondary-text: #b3b3b3;
-  --border-color: #444;
-  --accent-color: #3498db;
-  --accent-hover: #2980b9;
-  --shadow-color: rgba(0, 0, 0, 0.2);
-  --error-color: #e74c3c;
-  --skeleton-bg: #3a3a3a;
-  --skeleton-highlight: #4a4a4a;
+  --secondary-text: #a0a0a0;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-glow: rgba(59, 130, 246, 0.2);
+  --error-color: #ef4444;
+  --success-color: #10b981;
+  --skeleton-bg: rgba(42, 42, 42, 0.5);
+  --skeleton-highlight: rgba(58, 58, 58, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --gradient-start: #1e3a8a;
+  --gradient-end: #7c3aed;
 }
 
-/* Light theme color palette */
+/* Light theme color palette - Enhanced with glassmorphism */
 [data-theme='light'] {
-  --primary-bg: #f4f7f9;
-  --secondary-bg: #ffffff;
-  --tertiary-bg: #e9ecef;
-  --primary-text: #212529;
-  --secondary-text: #6c757d;
-  --border-color: #dee2e6;
-  --accent-color: #007bff;
-  --accent-hover: #0056b3;
-  --shadow-color: rgba(0, 0, 0, 0.05);
-  --error-color: #dc3545;
-  --skeleton-bg: #e9ecef;
-  --skeleton-highlight: #ced4da;
+  --primary-bg: #f8fafc;
+  --secondary-bg: rgba(255, 255, 255, 0.8);
+  --tertiary-bg: rgba(241, 245, 249, 0.6);
+  --primary-text: #0f172a;
+  --secondary-text: #64748b;
+  --border-color: rgba(148, 163, 184, 0.2);
+  --accent-color: #2563eb;
+  --accent-hover: #1d4ed8;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --shadow-glow: rgba(37, 99, 235, 0.15);
+  --error-color: #dc2626;
+  --success-color: #059669;
+  --skeleton-bg: rgba(241, 245, 249, 0.6);
+  --skeleton-highlight: rgba(203, 213, 225, 0.6);
+  --glass-bg: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --gradient-start: #3b82f6;
+  --gradient-end: #8b5cf6;
 }
 
 /* --- Global Styles --- */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
+  padding: 0;
   font-family: var(--font-family);
   background-color: var(--primary-bg);
   color: var(--primary-text);
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
 .App {
   text-align: center;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Typography Enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+p {
+  line-height: 1.7;
+}
+
+/* Button Base Styles with Ripple Effect */
+button {
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-family);
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+button:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Smooth transitions for all interactive elements */
+a, button, input, textarea, select {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles for accessibility */
+a:focus-visible, 
+button:focus-visible, 
+input:focus-visible, 
+textarea:focus-visible, 
+select:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Selection styling */
+::selection {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+::-moz-selection {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+/* Custom scrollbar for dark theme */
+[data-theme='dark'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: rgba(26, 26, 26, 0.5);
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 5px;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+
+/* Firefox scrollbar for dark theme */
+[data-theme='dark'] {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.3) rgba(26, 26, 26, 0.5);
+}
+
+/* Custom scrollbar for light theme */
+[data-theme='light'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+[data-theme='light'] ::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+}
+
+[data-theme='light'] ::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.3);
+  border-radius: 5px;
+}
+
+[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 99, 235, 0.5);
+}
+
+/* Firefox scrollbar for light theme */
+[data-theme='light'] {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(37, 99, 235, 0.3) rgba(241, 245, 249, 0.5);
 }
 
