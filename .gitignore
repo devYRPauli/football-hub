@@ -20,3 +20,8 @@ yarn-error.log*
 /backend/node_modules
 backend/.env
 backend/package-lock.json
+
+# Deployment documentation
+DEPLOYMENT_GUIDE.md
+DEPLOYMENT_CHECKLIST.md
+QUICK_START.md
